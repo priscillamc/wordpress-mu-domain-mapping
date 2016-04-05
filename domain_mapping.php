@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: WordPress MU Domain Mapping
+Plugin Name: WordPress MU Domain Mapping (patched)
 Plugin URI: http://ocaoimh.ie/wordpress-mu-domain-mapping/
 Description: Map any blog on a WordPress website to another domain.
-Version: 0.5.5.1
+Version: 0.5.5.1-0.0.1
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
@@ -515,7 +515,7 @@ function domain_mapping_siteurl( $setting ) {
 	if ( !isset( $return_url[ $wpdb->blogid ] ) ) {
 		$s = $wpdb->suppress_errors();
 
-		if ( get_site_option( 'dm_no_primary_domain' ) == 1 ) {
+		if ( (get_site_option( 'dm_no_primary_domain' ) == 1) || is_customize_preview() ) {
 			$domain = $wpdb->get_var( "SELECT domain FROM {$wpdb->dmtable} WHERE blog_id = '{$wpdb->blogid}' AND domain = '" . $wpdb->escape( $_SERVER[ 'HTTP_HOST' ] ) . "' LIMIT 1" );
 			if ( null == $domain ) {
 				$return_url[ $wpdb->blogid ] = untrailingslashit( get_original_url( "siteurl" ) );
@@ -695,7 +695,7 @@ function redirect_to_mapped_domain() {
 		return;
 
 	// don't redirect theme customizer (WP 3.4)
-	if ( isset( $_POST['customize'] ) && isset( $_POST['theme'] ) && $_POST['customize'] == 'on' )
+	if ( isset( $_POST['customized'] ) && isset( $_POST['theme'] ) && $_POST['wp_customize'] == 'on' )
 		return;
 
 	$protocol = is_ssl() ? 'https://' : 'http://';
